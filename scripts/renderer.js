@@ -12,6 +12,10 @@ class Renderer {
         this.fps = fps;
         this.start_time = null;
         this.prev_time = null;
+
+        this.s1theta = 0;   // Theta for First Spinning Polygon
+        this.s2theta = 0;   // Theta for Second Spinning Polygon
+        this.s3theta = 0;   // Theta for Third Spinning Polygon
     }
 
     // flag:  bool
@@ -66,6 +70,11 @@ class Renderer {
     //
     updateTransforms(time, delta_time) {
         // TODO: update any transformations needed for animation
+
+        // Updates for slide 1
+        this.s1theta = time / 4;
+        this.s2theta = -time;
+        this.s3theta = 2 * time;
     }
     
     //
@@ -110,7 +119,103 @@ class Renderer {
         // TODO: draw at least 3 polygons that spin about their own centers
         //   - have each polygon spin at a different speed / direction
         
+        let black = [0, 0, 0, 255];
+
+        //
+        //  First Poly
+        //
+        let square = [
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1)
+        ]
+        square[0].values = [200, 200, 1];
+        square[1].values = [250, 200, 1];
+        square[2].values = [250, 250, 1];
+        square[3].values = [200, 250, 1];
+
+        // Change matrix for First Poly
+        let trans = new Matrix(3, 3);
+        trans.values = mat3x3Translate(mat3x3Identity, 225, 225);
+        let trans2 = new Matrix(3, 3);
+        trans2.values = mat3x3Translate(mat3x3Identity, -225, -225);
+        let rotate = new Matrix(3, 3);
+        rotate.values = mat3x3Rotate(mat3x3Identity, this.s1theta);
+        let schange = new Matrix(3, 3);
+        schange = Matrix.multiply([trans, rotate, trans2]);
+
+        //  Change Poly 1 Verts
+        for (let i = 0; i < square.length; i++) {
+            square[i] = Matrix.multiply([schange, square[i]]);
+        } 
+        this.drawConvexPolygon(square, black);
+
+        //
+        // Second Poly
+        //
+        let hex = [
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1)
+        ];
+        hex[0].values = [400, 400, 1];
+        hex[1].values = [450, 400, 1];
+        hex[2].values = [500, 450, 1];
+        hex[3].values = [450, 500, 1];
+        hex[4].values = [400, 500, 1];
+        hex[5].values = [350, 450, 1];
         
+        // Change mat for poly 2
+        trans.values = mat3x3Translate(mat3x3Identity, 425, 450);
+        trans2.values = mat3x3Translate(mat3x3Identity, -425, -450);
+        rotate.values = mat3x3Rotate(mat3x3Identity, this.s2theta);
+        schange = Matrix.multiply([trans, rotate, trans2]);
+
+        // Change poly 2 verts
+        for (let i = 0; i < hex.length; i++) {
+            hex[i] = Matrix.multiply([schange, hex[i]]);
+        } 
+        this.drawConvexPolygon(hex, black);
+
+        //
+        // Third Poly
+        //
+        let octo = [
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1)
+        ];
+        octo[0].values = [400, 100, 1];
+        octo[1].values = [425, 100, 1];
+        octo[2].values = [450, 125, 1];
+        octo[3].values = [450, 150, 1];
+        octo[4].values = [425, 175, 1];
+        octo[5].values = [400, 175, 1];
+        octo[6].values = [375, 150, 1];
+        octo[7].values = [375, 125, 1];
+
+        // Change mat for poly 2
+        trans.values = mat3x3Translate(mat3x3Identity, 412.5, 137.5);
+        trans2.values = mat3x3Translate(mat3x3Identity, -412.5, -137.5);
+        rotate.values = mat3x3Rotate(mat3x3Identity, this.s3theta);
+        schange = Matrix.multiply([trans, rotate, trans2]);
+
+        // Change poly 2 verts
+        for (let i = 0; i < octo.length; i++) {
+            octo[i] = Matrix.multiply([schange, octo[i]]);
+        } 
+        this.drawConvexPolygon(octo, black);
+
+
     }
 
     //
