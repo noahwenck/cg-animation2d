@@ -225,6 +225,81 @@ class Renderer {
         //   - try at least 1 polygon that grows / shrinks non-uniformly in the x and y directions
 
 
+        /*
+         Alright -- Firstly we be listening to Formula - Labyrinth
+         YER
+         growing/shrinking seems kinda sus but its cool.
+         We should create a polygon that grows by some X and by Some Y, where teh individual points get transfromed
+
+
+         Suppose we have Polygon:
+         *---*
+         |   |
+         *---*
+         a,b,c,d are points
+
+         Growth occurs if we split Through the middle Like this:
+                      |
+         *----*    *--|--*
+         |    |    |  |  |  // Broski Looks like a kebab
+       ----------  |  |  |
+         |    |    *--|--*
+         *----*       |
+
+
+         Nowm, comparativly speaking, we have side A_0 and B_0 for X axis; Side A_1 and B_1 for Y axis
+
+         this sucks ass cause polygons tend to have motherfuckin rainbows in thei ass...
+
+         Solutions:
+         1) We must use some form of algorithm to find general middle of the dudes
+         1.1) Idk why we would wanna make things complicated if shits static anyways (not user defined)
+         2) We must use some form of simplification/ SHORTCUT
+         2.1) We simply count total number of edges and MANUALLY say "Yo, broski, these three to the left are going left"
+         2.2) This will simplify and make for quick progression
+
+
+        How do we create a loop which changes X and Y at different rates and looks like and accordion????
+        We simply create a while Loop which updates the individual X and Y points of the polygon points. Tada.
+
+
+        */
+
+        // We first create 4 points polygon
+        // Yes I looked up wtf a polygon is - dont come at me
+
+        // TODO Create Scaling thingy which pushes thing to right/left - up/down
+        let trans = new Matrix(3, 3);
+        trans.values = mat3x3Translate(mat3x3Identity, 200, 200);
+        let trans2 = new Matrix(3, 3);
+        trans2.values = mat3x3Translate(mat3x3Identity, -300, -300);
+        let rotate = new Matrix(3, 3);
+        rotate.values = mat3x3Rotate(mat3x3Identity, this.s1theta);
+        let schange = new Matrix(3, 3);
+        schange = Matrix.multiply([trans, rotate, trans2]);
+
+
+
+        let square = [
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1)
+        ];
+
+        square[0].values = [175, 250, 1]; // Right | Down
+        square[1].values = [100, 330, 1]; // Left  | Down
+        square[2].values = [160, 310, 1]; // Left  | Up
+        square[3].values = [250, 350, 1]; // Right | Up
+
+
+        for (let x = 0; x < 4; x++) {
+            square[x] = Matrix.multiply([schange, square[x]]);
+        }
+        this.drawConvexPolygon(square, [255, 128, 128, 255]);
+
+
+
     }
 
     //
@@ -232,7 +307,11 @@ class Renderer {
         // TODO: get creative!
         //   - animation should involve all three basic transformation types
         //     (translation, scaling, and rotation)
-        
+
+        // Let's just be so creative and quirky like omfg AHHHHHHH SO FUN!!!
+        // It's giving.... It's giving.... It's giving....
+
+
         
     }
     
