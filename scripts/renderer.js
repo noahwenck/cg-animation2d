@@ -30,6 +30,19 @@ class Renderer {
         this.square_slide_2[2].values = [160, 310, 1]; // Left  | Up
         this.square_slide_2[3].values = [250, 350, 1]; // Right | Up
 
+        // Kebab Example in Slide2 (3rd Slide)
+        // True Means Going UP
+        this.square_up_00 = true;
+        this.square_up_01 = false;
+        this.square_up_10 = true;
+        this.square_up_11 = true;
+
+        // True Means Going LEFT
+        this.square_left_00 = true;
+        this.square_left_01 = true;
+        this.square_left_10 = true;
+        this.square_left_11 = true;
+        this.tester = 0;
 
 
 
@@ -280,59 +293,6 @@ class Renderer {
         We simply create a while Loop which updates the individual X and Y points of the polygon points. Tada.
 
 
-        */
-
-        // We first create 4 points polygon
-        // Yes I looked up wtf a polygon is - dont come at me
-
-        // TODO Create Scaling thingy which pushes thing to right/left - up/down
-        let right = new Matrix(3, 3);
-        right.values = mat3x3Scale(mat3x3Identity, 1.1, 1); // Shifts RIGHT TRUE
-        let left = new Matrix(3, 3);
-        left.values = mat3x3Scale(mat3x3Identity, 0.9, 1); // Shifts LEFT TRUE
-
-        let up = new Matrix(3, 3);
-        up.values = mat3x3Scale(mat3x3Identity, 1, 1.1); // Shifts UP TRUE
-        let down = new Matrix(3, 3);
-        down.values = mat3x3Scale(mat3x3Identity, 1, 0.9); // Shifts DOWN TRUE
-
-
-
-        // Draw Square before modification to compare difference after modification
-
-//        for (let x = 0; x < 2; x++) {
-//            square[x] = Matrix.multiply([this.move_point_left(random_num), square[x]]);
-//        }
-
-//         let square = [
-//            new Matrix(3, 1),
-//            new Matrix(3, 1),
-//            new Matrix(3, 1),
-//            new Matrix(3, 1)
-//        ];
-
-//        this.drawConvexPolygon(this.square, [128, 128, 255, 255]);
-
-
-        // Move This LEFT
-        let random_num = Math.floor(Math.random() + 0.5);
-        let temp = new Matrix(3, 3);
-        temp.values = mat3x3Scale(mat3x3Identity, 0.99 + (0.005 * random_num), 1);
-        this.square_slide_2[0] = Matrix.multiply([temp, this.square_slide_2[0]]);
-        this.square_slide_2[1] = Matrix.multiply([temp, this.square_slide_2[1]]);
-
-        // Move This DOWN
-        random_num = Math.floor(Math.random() + 0.5);
-        temp.values = mat3x3Scale(mat3x3Identity, 1, 0.99 + (0.005 * random_num));
-        this.square_slide_2[2] = Matrix.multiply([temp, this.square_slide_2[2]]);
-        this.square_slide_2[3] = Matrix.multiply([temp, this.square_slide_2[3]]);
-
-
-        this.drawConvexPolygon(this.square_slide_2, [255, 128, 128, 128]);
-
-
-        // TODO Create Algorithms for Updating of Triangles -> Left/Right + Up/Down
-        /*
 
         Algorithm Left/Right:
         - Make sure we slowly incriment the scale *NO MULTIPLICATION* Only Addition
@@ -354,47 +314,96 @@ class Renderer {
         - - - - Depending on Where Which point is, we change the type of Function being Called
         - - - - - This is because points move LEFT AND RIGHT -> Therefore Utilize both functions
 
-        TODO Look Below - Line 324
-        1) Create Left/Right Functions
-        2) Add Randomization (0.01 / 0.005)
-
-
-
         */
 
 
+        // We first create 4 points polygon
+        // Yes I looked up wtf a polygon is - dont come at me
+
+        let random_num = Math.floor(Math.random() + 0.5);
+        let temp_points = [this.square_slide_2[0], this.square_slide_2[1]];
+        let move_up = this.scale_triangle(this.square_left_01, temp_points, 75, 300, random_num, true);
+        this.square_left_01 = move_up[0];
+        this.square_slide_2[0] = move_up[1][0];
+        this.square_slide_2[1] = move_up[1][1];
+
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.square_slide_2[2], this.square_slide_2[3]];
+        move_up = this.scale_triangle(this.square_left_00, temp_points, 100, 400, random_num, false);
+        this.square_left_00 = move_up[0];
+        this.square_slide_2[2] = move_up[1][0];
+        this.square_slide_2[3] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.square_slide_2[1], this.square_slide_2[2]];
+        move_up = this.scale_triangle(this.square_left_10, temp_points, 50, 350, random_num, true);
+        this.square_left_10 = move_up[0];
+        this.square_slide_2[1] = move_up[1][0];
+        this.square_slide_2[2] = move_up[1][1];
+
+        this.drawConvexPolygon(this.square_slide_2, [255, 128, 128, 128]);
+
+
     }
 
-// TODO We PROBABLY won't need these functions
-    // Manually Added Function For Moving Point to the Left
-    move_point_left(random_num, vect, scaler) {
-        let temp = new Matrix(3, 1);
-        vect[0] = vect[0] - 1 + (scaler * random_num);
-        temp.values = vect;
-        return temp.values; // Shifts LEFT
-    }
-
-    move_point_right(random_num, vect, scaler) {
+    // Manually Added Function for Scaling Triangles
+    scale_triangle(direction_anchor, points, lower_bound, upper_bound, random_num, move_horizontal) {
         let temp = new Matrix(3, 3);
-        temp.values = mat3x3Scale(mat3x3Identity, 1.1, 1);
-        vect = Matrix.multiply([mat3x3Scale(mat3x3Identity, 1.1, 1), vect])
-        return vect; // Shifts RIGHT
-    }
+        let x_or_y = 0; // Use either X or Y coordinates for calculating Scaling
+        if (!move_horizontal) {
+            x_or_y = 1;
+        }
+        // Make it an anchor to be universal for other callers
+        if (direction_anchor) {
+                // Instead of calling the WHOLE polygon, we just call a single point values
+                // We replaced hard-coded values with fluid parameter values
+                // This Makes sure that IF EITHER point reaches the boundary, we start moving in the opposite direction
+                for (let x = 0; x < points.length; x++) {
+                    if (points[x].values[x_or_y] <= lower_bound) {
+                        return [false, points];
+                    }
+                }
 
-    move_point_up(random_num, vect, scaler) {
-        let temp = new Matrix(3, 1);
-        console.log(vect);
-        vect[1] = vect[1] + 1 + (scaler * random_num);
-        temp.values = vect;
-        return temp.values; // Shifts UP
-    }
+                // This assures we can switch between horizontal and Vertical movement
+                if (move_horizontal) {
+                    temp.values = mat3x3Scale(mat3x3Identity, 0.99 + (0.005 * random_num), 1);
+                } else {
+                    temp.values = mat3x3Scale(mat3x3Identity, 1, 0.99 + (0.005 * random_num));
+                }
+                // Instead of calling the WHOLE polygon, we just call a single point
+                for (let x = 0; x < points.length; x++) {
+                    points[x] = Matrix.multiply([temp, points[x]]);
+                }
 
-    move_point_down(random_num, vect, scaler) {
-        let temp = new Matrix(3, 1);
-        vect[1] -= 1 + (scaler * random_num);
-        temp.values = vect;
-        return temp.values; // Shifts DOWN
-    }
+                return [true, points];
+
+            } else {
+                // Instead of calling the WHOLE polygon, we just call a single point values
+                // We replaced hard-coded values with fluid parameter values
+                // This Makes sure that IF EITHER point reaches the boundary, we start moving in the opposite direction
+                for (let x = 0; x < points.length; x++) {
+                    if (points[x].values[x_or_y] >= upper_bound) {
+                        return [true, points];
+                    }
+                }
+
+                // This assures we can switch between horizontal and Vertical movement
+                if (move_horizontal) {
+                    temp.values = mat3x3Scale(mat3x3Identity, 1.01 - (0.005 * random_num), 1);
+                } else {
+                    temp.values = mat3x3Scale(mat3x3Identity, 1, 1.01 - (0.005 * random_num));
+                }
+                // Instead of calling the WHOLE polygon, we just call a single point
+                for (let x = 0; x < points.length; x++) {
+                    points[x] = Matrix.multiply([temp, points[x]]);
+                }
+
+                return [false, points];
+            }
+       }
+
+
 
     //
     drawSlide3() {
