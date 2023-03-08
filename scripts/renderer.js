@@ -19,30 +19,48 @@ class Renderer {
 
 
         // Values for Polygon_1 for Slide2 (3rd Slide)
-        this.square_slide_2 = [
+        this.square_0_slide_2 = [
             new Matrix(3, 1),
             new Matrix(3, 1),
             new Matrix(3, 1),
             new Matrix(3, 1)
         ];
-        this.square_slide_2[0].values = [175, 250, 1]; // Right | Down
-        this.square_slide_2[1].values = [100, 330, 1]; // Left  | Down
-        this.square_slide_2[2].values = [160, 310, 1]; // Left  | Up
-        this.square_slide_2[3].values = [250, 350, 1]; // Right | Up
+        this.square_0_slide_2[0].values = [175, 250, 1]; // Right | Down
+        this.square_0_slide_2[1].values = [100, 330, 1]; // Left  | Down
+        this.square_0_slide_2[2].values = [160, 310, 1]; // Left  | Up
+        this.square_0_slide_2[3].values = [250, 350, 1]; // Right | Up
+
+        this.square_1_slide_2 = [
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1)
+        ];
+        this.square_1_slide_2[0].values = [400, 460, 1];
+        this.square_1_slide_2[1].values = [460, 460, 1];
+        this.square_1_slide_2[2].values = [480, 470, 1];
+        this.square_1_slide_2[3].values = [600, 450, 1];
+        this.square_1_slide_2[4].values = [440, 530, 1];
+        this.square_1_slide_2[5].values = [350, 490, 1];
 
         // Kebab Example in Slide2 (3rd Slide)
         // True Means Going UP
-        this.square_up_00 = true;
-        this.square_up_01 = false;
-        this.square_up_10 = true;
-        this.square_up_11 = true;
+        this.square_0_00 = true;
+        this.square_0_01 = false;
+        this.square_0_10 = true;
+        this.square_0_11 = true;
 
         // True Means Going LEFT
-        this.square_left_00 = true;
-        this.square_left_01 = true;
-        this.square_left_10 = true;
-        this.square_left_11 = true;
-        this.tester = 0;
+        this.square_1_00 = true;
+        this.square_1_01 = true;
+        this.square_1_10 = true;
+        this.square_1_11 = true;
+        this.square_1_001 = true;
+        this.square_1_011 = true;
+        this.square_1_010 = true;
+
 
 
 
@@ -321,35 +339,96 @@ class Renderer {
         // Yes I looked up wtf a polygon is - dont come at me
 
         let random_num = Math.floor(Math.random() + 0.5);
-        let temp_points = [this.square_slide_2[0], this.square_slide_2[1]];
-        let move_up = this.scale_triangle(this.square_left_01, temp_points, 75, 300, random_num, true);
-        this.square_left_01 = move_up[0];
-        this.square_slide_2[0] = move_up[1][0];
-        this.square_slide_2[1] = move_up[1][1];
+        let temp_points = [this.square_0_slide_2[0], this.square_0_slide_2[1]];
+        let move_up = this.scale_triangle(this.square_0_01, temp_points, 75, 300, random_num, true, 1, 0.005);
+        this.square_0_01 = move_up[0];
+        this.square_0_slide_2[0] = move_up[1][0];
+        this.square_0_slide_2[1] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.square_0_slide_2[2], this.square_0_slide_2[3]];
+        move_up = this.scale_triangle(this.square_0_00, temp_points, 100, 400, random_num, false, 1, 0.005);
+        this.square_0_00 = move_up[0];
+        this.square_0_slide_2[2] = move_up[1][0];
+        this.square_0_slide_2[3] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.square_0_slide_2[1], this.square_0_slide_2[2]];
+        move_up = this.scale_triangle(this.square_0_10, temp_points, 50, 350, random_num, true, 1, 0.005);
+        this.square_0_10 = move_up[0];
+        this.square_0_slide_2[1] = move_up[1][0];
+        this.square_0_slide_2[2] = move_up[1][1];
+
+        // Draw First Square
+        this.drawConvexPolygon(this.square_0_slide_2, [255, 100, 100, 255]);
 
 
         random_num = Math.floor(Math.random() + 0.5);
-        temp_points = [this.square_slide_2[2], this.square_slide_2[3]];
-        move_up = this.scale_triangle(this.square_left_00, temp_points, 100, 400, random_num, false);
-        this.square_left_00 = move_up[0];
-        this.square_slide_2[2] = move_up[1][0];
-        this.square_slide_2[3] = move_up[1][1];
+        temp_points = [this.square_1_slide_2[0], this.square_1_slide_2[1]];
+        move_up = this.scale_triangle(this.square_1_00, temp_points, 350, 580, random_num, false, 3, 0.0005);
+        this.square_1_00 = move_up[0];
+        this.square_1_slide_2[0] = move_up[1][0];
+        this.square_1_slide_2[1] = move_up[1][1];
 
         random_num = Math.floor(Math.random() + 0.5);
-        temp_points = [this.square_slide_2[1], this.square_slide_2[2]];
-        move_up = this.scale_triangle(this.square_left_10, temp_points, 50, 350, random_num, true);
-        this.square_left_10 = move_up[0];
-        this.square_slide_2[1] = move_up[1][0];
-        this.square_slide_2[2] = move_up[1][1];
+        temp_points = [this.square_1_slide_2[1], this.square_1_slide_2[2]];
+        move_up = this.scale_triangle(this.square_1_01, temp_points, 400, 750, random_num, true, 3, 0.0005);
+        this.square_1_01 = move_up[0];
+        this.square_1_slide_2[1] = move_up[1][0];
+        this.square_1_slide_2[2] = move_up[1][1];
 
-        this.drawConvexPolygon(this.square_slide_2, [255, 128, 128, 128]);
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.square_1_slide_2[3], this.square_1_slide_2[4]];
+        move_up = this.scale_triangle(this.square_1_10, temp_points, 400, 750, random_num, true, 3, 0.0005);
+        this.square_1_10 = move_up[0];
+        this.square_1_slide_2[3] = move_up[1][0];
+        this.square_1_slide_2[4] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.square_1_slide_2[4], this.square_1_slide_2[5]];
+        move_up = this.scale_triangle(this.square_1_11, temp_points, 400, 550, random_num, false, 3, 0.0005);
+        this.square_1_11 = move_up[0];
+        this.square_1_slide_2[4] = move_up[1][0];
+        this.square_1_slide_2[5] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.square_1_slide_2[0], this.square_1_slide_2[3]];
+        move_up = this.scale_triangle(this.square_1_001, temp_points, 400, 550, random_num, false, 3, 0.0005);
+        this.square_1_001 = move_up[0];
+        this.square_1_slide_2[0] = move_up[1][0];
+        this.square_1_slide_2[3] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.square_1_slide_2[2], this.square_1_slide_2[5]];
+        move_up = this.scale_triangle(this.square_1_011, temp_points, 330, 580, random_num, false, 3, 0.0005);
+        this.square_1_011 = move_up[0];
+        this.square_1_slide_2[2] = move_up[1][0];
+        this.square_1_slide_2[5] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.square_1_slide_2[2], this.square_1_slide_2[5]];
+        move_up = this.scale_triangle(this.square_1_010, temp_points, 400, 700, random_num, true, 3, 0.0005);
+        this.square_1_010 = move_up[0];
+        this.square_1_slide_2[2] = move_up[1][0];
+        this.square_1_slide_2[5] = move_up[1][1];
+
+        // Draw Second Square
+        this.drawConvexPolygon(this.square_1_slide_2, [80, 40, 255, 255]);
+
+
 
 
     }
 
     // Manually Added Function for Scaling Triangles
-    scale_triangle(direction_anchor, points, lower_bound, upper_bound, random_num, move_horizontal) {
+    scale_triangle(direction_anchor, points, lower_bound, upper_bound, random_num, move_horizontal, speed, rand_update) {
         let temp = new Matrix(3, 3);
+        if (speed == 0.0) {
+            console.log("Speed Must be Larger than 0.0 (> 0.0)")
+        }
+        let reduce = 1.0 - (0.01 / speed);
+        let increase = 1.0 + (0.01 / speed);
+
         let x_or_y = 0; // Use either X or Y coordinates for calculating Scaling
         if (!move_horizontal) {
             x_or_y = 1;
@@ -367,9 +446,9 @@ class Renderer {
 
                 // This assures we can switch between horizontal and Vertical movement
                 if (move_horizontal) {
-                    temp.values = mat3x3Scale(mat3x3Identity, 0.99 + (0.005 * random_num), 1);
+                    temp.values = mat3x3Scale(mat3x3Identity, reduce + (rand_update * random_num), 1);
                 } else {
-                    temp.values = mat3x3Scale(mat3x3Identity, 1, 0.99 + (0.005 * random_num));
+                    temp.values = mat3x3Scale(mat3x3Identity, 1, reduce + (rand_update * random_num));
                 }
                 // Instead of calling the WHOLE polygon, we just call a single point
                 for (let x = 0; x < points.length; x++) {
@@ -390,9 +469,9 @@ class Renderer {
 
                 // This assures we can switch between horizontal and Vertical movement
                 if (move_horizontal) {
-                    temp.values = mat3x3Scale(mat3x3Identity, 1.01 - (0.005 * random_num), 1);
+                    temp.values = mat3x3Scale(mat3x3Identity, increase - (rand_update * random_num), 1);
                 } else {
-                    temp.values = mat3x3Scale(mat3x3Identity, 1, 1.01 - (0.005 * random_num));
+                    temp.values = mat3x3Scale(mat3x3Identity, 1, increase - (rand_update * random_num));
                 }
                 // Instead of calling the WHOLE polygon, we just call a single point
                 for (let x = 0; x < points.length; x++) {
