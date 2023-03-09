@@ -75,8 +75,43 @@ class Renderer {
         this.square_1_011 = true;
         this.square_1_010 = true;
 
+        // Slide 3
+        this.black = [0, 0, 0, 255];
 
+        this.outD1 = [new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1)];
+        this.outD1[0].values = [200, 185, 1];
+        this.outD1[1].values = [225, 175, 1];
+        this.outD1[2].values = [230, 150, 1];
+        this.outD1[3].values = [225, 125, 1];
+        this.outD1[4].values = [200, 115, 1];
+        this.inD1 = [new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1)];
+        this.inD1[0].values = [205, 175, 1];
+        this.inD1[1].values = [220, 165, 1];
+        this.inD1[2].values = [225, 150, 1];
+        this.inD1[3].values = [220, 135, 1];
+        this.inD1[4].values = [205, 125, 1];
 
+        this.outV = [new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1)];
+        this.outV[0].values = [250, 185, 1];
+        this.outV[1].values = [280, 185, 1];
+        this.outV[2].values = [265, 115, 1];
+        this.inV = [new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1)];
+        this.inV[0].values = [260, 185, 1];
+        this.inV[1].values = [270, 185, 1];
+        this.inV[2].values = [265, 135, 1];
+
+        this.outD2 = [new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1)];
+        this.outD2[0].values = [300, 185, 1];
+        this.outD2[1].values = [325, 175, 1];
+        this.outD2[2].values = [330, 150, 1];
+        this.outD2[3].values = [325, 125, 1];
+        this.outD2[4].values = [300, 115, 1];
+        this.inD2 = [new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1), new Matrix(3, 1)];
+        this.inD2[0].values = [305, 175, 1];
+        this.inD2[1].values = [320, 165, 1];
+        this.inD2[2].values = [325, 150, 1];
+        this.inD2[3].values = [320, 135, 1];
+        this.inD2[4].values = [305, 125, 1];
 
     }
 
@@ -210,10 +245,7 @@ class Renderer {
             this.circle[i] = Matrix.multiply([trans, this.circle[i]]);
         }      
  
-        // Draw Circle
-        for (let i = 1; i < this.circle.length - 1; i++) {
-            this.drawConvexPolygon([this.circle[0], this.circle[i], this.circle[i+1]], teal);
-        }
+        this.drawConvexPolygon(this.circle, teal);
         this.drawConvexPolygon([this.circle[0], this.circle[1], this.circle[this.circle.length - 1]], teal);
 
     }
@@ -458,9 +490,6 @@ class Renderer {
         // Draw Second Square
         this.drawConvexPolygon(this.square_1_slide_2, [80, 40, 255, 255]);
 
-
-
-
     }
 
     // Manually Added Function for Scaling Triangles
@@ -530,13 +559,60 @@ class Renderer {
     //
     drawSlide3() {
         // TODO: get creative!
-        //   - animation should involve all three basic transformation types
-        //     (translation, scaling, and rotation)
 
-        // Let's just be so creative and quirky like omfg AHHHHHHH SO FUN!!!
-        // It's giving.... It's giving.... It's giving....
+        let white = [255, 255, 255, 255];
 
+        let color = false;
+        let trans = new Matrix(3, 3);
+        trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
 
+        for (let i = 0; i < 5; i++) {
+            if (Matrix.multiply([trans, this.outD1[i]]).values[0] > 700) {
+                this.s0x = -this.s0x;
+                color = true;
+                break;
+            }
+            if (Matrix.multiply([trans, this.outD1[i]]).values[1] > 600) {
+                this.s0y = -this.s0y;
+                color = true;
+                break;
+            }
+        }
+        for (let i = 0; i < 5; i++) {
+            if (Matrix.multiply([trans, this.outD2[i]]).values[0] < 100) {
+                this.s0x = -this.s0x;
+                color = true;
+                break;
+            }
+            if (Matrix.multiply([trans, this.outD2[i]]).values[1] < 0) {
+                this.s0y = -this.s0y;
+                color = true;
+                break;
+            }
+        }
+
+        if (color) {
+            console.log(Math.random(255));
+            this.black = [Math.floor(Math.random() * 250) + 5, Math.floor(Math.random() * 250) + 5, Math.floor(Math.random() * 250) + 5, 255];
+        }
+
+        for (let i = 0; i < 5; i++) {
+            this.outD1[i] = Matrix.multiply([trans, this.outD1[i]]);
+            this.inD1[i] = Matrix.multiply([trans, this.inD1[i]]);
+            this.outD2[i] = Matrix.multiply([trans, this.outD2[i]]);
+            this.inD2[i] = Matrix.multiply([trans, this.inD2[i]]);
+        }
+        for (let i = 0; i < 3; i++) {
+            this.outV[i] = Matrix.multiply([trans, this.outV[i]]);
+            this.inV[i] = Matrix.multiply([trans, this.inV[i]]);
+        }
+
+        this.drawConvexPolygon(this.outD1, this.black);
+        this.drawConvexPolygon(this.inD1, white);
+        this.drawConvexPolygon(this.outV, this.black);
+        this.drawConvexPolygon(this.inV, white);
+        this.drawConvexPolygon(this.outD2, this.black);
+        this.drawConvexPolygon(this.inD2, white);
         
     }
     
