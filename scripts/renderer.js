@@ -13,29 +13,20 @@ class Renderer {
         this.start_time = null;
         this.prev_time = null;
 
-        this.s0x = 3;
-        this.s0y = 3;
-        this.square = [
-            new Matrix(3, 1),
-            new Matrix(3, 1),
-            new Matrix(3, 1),
-            new Matrix(3, 1)
-        ]
-        this.square[0].values = [200, 200, 1];
-        this.square[1].values = [250, 200, 1];
-        this.square[2].values = [250, 250, 1];
-        this.square[3].values = [200, 250, 1];
+        // Slide 0
+        this.s0x = 3;   // X Velocity
+        this.s0y = 3;   // Y Velocity
 
-        this.circle = [new Matrix(3, 1)];
+        this.circle = [new Matrix(3, 1)];   
         this.circle[0].values = [200, 300, 1];
         for (let i = 1; i < 20; i++) {
             this.circle[i] = new Matrix(3, 1);
             let x = parseInt(200 + 50 * Math.cos((i * 18) * (Math.PI / 180)));
-            //let y = parseInt(200 + 50 * Math.sin((i * 6) * (Math.PI / 180)));
             let y = parseInt(300 + 50 * Math.sin((i * 18) * (Math.PI / 180)));
             this.circle[i].values = [x, y, 1];
         }
 
+        // Slide 1
         this.s1theta = 0;   // Theta for First Spinning Polygon
         this.s2theta = 0;   // Theta for Second Spinning Polygon
         this.s3theta = 0;   // Theta for Third Spinning Polygon
@@ -142,13 +133,13 @@ class Renderer {
     updateTransforms(time, delta_time) {
         // TODO: update any transformations needed for animation
 
-        //MAYBE DON'T UPDATE THE SAME POLYGON THIS MIGHT BE IT GENTS LETS FUCKIN GO
         // Updates for Slide 0
+        this.s0x = this.s0x / Math.abs(this.s0x);
+        this.s0y = this.s0y / Math.abs(this.s0y);
         if (delta_time != 0) {
-            //this.s0x = delta_time / 4;
-           //this.s0y = delta_time / delta_time;
+            this.s0x = this.s0x * delta_time / 5;
+            this.s0y = this.s0y * delta_time / 5;
         }
-       
 
         // Updates for slide 1
         this.s1theta = time / 4;
@@ -178,77 +169,52 @@ class Renderer {
 
     //
     drawSlide0() {
-        // TODO: draw bouncing ball (circle that changes direction whenever it hits an edge)
         
         let teal = [0, 128, 128, 255];
-/*
-        // 
-        //  Corcle
-        //  dont look at the verts please
-        let circle = [new Matrix(3, 1)];
-        circle[0].values = [200, 300, 1];
-        for (let i = 1; i < 20; i++) {
-            circle[i] = new Matrix(3, 1);
-            let x = parseInt(200 + 50 * Math.cos((i * 18) * (Math.PI / 180)));
-            //let y = parseInt(200 + 50 * Math.sin((i * 6) * (Math.PI / 180)));
-            let y = parseInt(300 + 50 * Math.sin((i * 18) * (Math.PI / 180)));
-            circle[i].values = [x, y, 1];
-        }*/
 
+        // Translate Matrix Setup
         let trans = new Matrix(3, 3);
         trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
-        //console.log(trans);
 
-        for (let i = 0; i < this.circle.length; i++) {
-            for (let x = 0; x < this.circle.length; x++) {
-                if (Matrix.multiply([trans, this.circle[i]]).values[0] < 0 || Matrix.multiply([trans, this.circle[i]]).values[0] > 800) {
-                    this.s0x = -this.s0x;
-                    break;  // this might be problematic, try just testing center?
-                    
-                }
-                console.log(this.s0x);
+        //  X Check
+        // Reverses Direction if Circle will go past edge on next Translate
+        if (Matrix.multiply([trans, this.circle[0]]).values[0] > 750) {
+            this.s0x = -this.s0x;
+            for (let i = 0; i < this.circle.length; i++) {
+                this.circle[i].values[0][0] -= 5;       // Ensures that the circle doesn't get stuck on the edge
             }
-            this.circle[i] = Matrix.multiply([trans, this.circle[i]]);
         }
-        for (let i = 0; i < this.circle.length; i++) {
-                if (Matrix.multiply([trans, this.circle[i]]).values[1] < 0 || Matrix.multiply([trans, this.circle[i]]).values[1] > 600) {
-                    this.s0y = -this.s0y;
-                    break;
-                }
+        else if (Matrix.multiply([trans, this.circle[0]]).values[0] - 50 < 0) {
+            this.s0x= -this.s0x;
+            for (let i = 0; i < this.circle.length; i++) {
+                this.circle[i].values[0][0] += 5;
+            }
         }
-        trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
-        /*for (let i = 0; i < this.circle.length; i++) {
-            this.cicle[i] = Matrix.multiply([trans, this.circle[i]]);
-        }*/
-        
 
+        // Y Check
+        if (Matrix.multiply([trans, this.circle[0]]).values[1] > 550) {
+            this.s0y = -this.s0y;
+            for (let i = 0; i < this.circle.length; i++) {
+                this.circle[i].values[1][0] -= 5;
+            }
+        }
+        else if (Matrix.multiply([trans, this.circle[0]]).values[1] - 50 < 0) {
+            this.s0y = -this.s0y;
+            for (let i = 0; i < this.circle.length; i++) {
+                this.circle[i].values[1][0] += 5;
+            }
+        }
+
+        // Applies Transform to all Vertices
+        for (let i = 0; i < this.circle.length; i++) {
+            this.circle[i] = Matrix.multiply([trans, this.circle[i]]);
+        }      
+ 
+        // Draw Circle
         for (let i = 1; i < this.circle.length - 1; i++) {
             this.drawConvexPolygon([this.circle[0], this.circle[i], this.circle[i+1]], teal);
         }
         this.drawConvexPolygon([this.circle[0], this.circle[1], this.circle[this.circle.length - 1]], teal);
-
-        // KEEP BECAUSE THIS KIND OF WORKS
-/*
-        //this.drawConvexPolygon(this.square, teal);
-
-        let trans = new Matrix(3, 3);
-        trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
-       
-
-        for (let i = 0; i < this.square.length; i++) {
-            for (let x = 0; x < this.square.length; x++) {
-                if (Matrix.multiply([trans, this.square[i]]).values[0] < 0 || Matrix.multiply([trans, this.square[i]]).values[0] > 800) {
-                    this.s0x = -this.s0x;
-                }
-                if (Matrix.multiply([trans, this.square[i]]).values[1] < 0 || Matrix.multiply([trans, this.square[i]]).values[1] > 600) {
-                    this.s0y = -this.s0y;
-                }
-                console.log(this.s0x);
-                trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
-            }
-            this.square[i] = Matrix.multiply([trans, this.square[i]]);
-        }
-        this.drawConvexPolygon(this.square, teal);*/
 
     }
 
