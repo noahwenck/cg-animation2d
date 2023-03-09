@@ -113,6 +113,9 @@ class Renderer {
         this.inD2[3].values = [320, 135, 1];
         this.inD2[4].values = [305, 125, 1];
 
+        this.timer = 0;
+        this.hexColor = [0, 0, 0, 255];
+
     }
 
     // flag:  bool
@@ -180,6 +183,9 @@ class Renderer {
         this.s1theta = time / 4;
         this.s2theta = -time;
         this.s3theta = time / 20;
+
+        // Updates for Slide 3
+        this.timer = this.timer + delta_time;
     }
     
     //
@@ -566,26 +572,68 @@ class Renderer {
         let trans = new Matrix(3, 3);
         trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
 
+        // Too Far Check
         for (let i = 0; i < 5; i++) {
             if (Matrix.multiply([trans, this.outD1[i]]).values[0] > 700) {
                 this.s0x = -this.s0x;
+                for (let i = 0; i < 5; i++) {
+                    this.outD1[i].values[0][0] -= 5;
+                    this.inD1[i].values[0][0] -= 5;
+                    this.outD2[i].values[0][0] -= 5;
+                    this.inD2[i].values[0][0] -= 5;
+                }
+                for (let i = 0; i < 3; i++) {
+                    this.outV[i].values[0][0] -= 5;
+                    this.inV[i].values[0][0] -= 5;
+                }
                 color = true;
                 break;
             }
             if (Matrix.multiply([trans, this.outD1[i]]).values[1] > 600) {
                 this.s0y = -this.s0y;
+                for (let i = 0; i < 5; i++) {
+                    this.outD1[i].values[1][0] -= 5;
+                    this.inD1[i].values[1][0] -= 5;
+                    this.outD2[i].values[1][0] -= 5;
+                    this.inD2[i].values[1][0] -= 5;
+                }
+                for (let i = 0; i < 3; i++) {
+                    this.outV[i].values[1][0] -= 5;
+                    this.inV[i].values[1][0] -= 5;
+                }
                 color = true;
                 break;
             }
         }
+        // Too Near Check
         for (let i = 0; i < 5; i++) {
             if (Matrix.multiply([trans, this.outD2[i]]).values[0] < 100) {
                 this.s0x = -this.s0x;
+                for (let i = 0; i < 5; i++) {
+                    this.outD1[i].values[0][0] += 5;
+                    this.inD1[i].values[0][0] += 5;
+                    this.outD2[i].values[0][0] += 5;
+                    this.inD2[i].values[0][0] += 5;
+                }
+                for (let i = 0; i < 3; i++) {
+                    this.outV[i].values[0][0] += 5;
+                    this.inV[i].values[0][0] += 5;
+                }
                 color = true;
                 break;
             }
             if (Matrix.multiply([trans, this.outD2[i]]).values[1] < 0) {
                 this.s0y = -this.s0y;
+                for (let i = 0; i < 5; i++) {
+                    this.outD1[i].values[1][0] += 5;
+                    this.inD1[i].values[1][0] += 5;
+                    this.outD2[i].values[1][0] += 5;
+                    this.inD2[i].values[1][0] += 5;
+                }
+                for (let i = 0; i < 3; i++) {
+                    this.outV[i].values[1][0] += 5;
+                    this.inV[i].values[1][0] += 5;
+                }
                 color = true;
                 break;
             }
@@ -614,6 +662,30 @@ class Renderer {
         this.drawConvexPolygon(this.outD2, this.black);
         this.drawConvexPolygon(this.inD2, white);
         
+        // Rotation
+        let hex = [
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1)
+        ];
+        hex[0].values = [400, 400, 1];
+        hex[1].values = [450, 400, 1];
+        hex[2].values = [500, 450, 1];
+        hex[3].values = [450, 500, 1];
+        hex[4].values = [400, 500, 1];
+        hex[5].values = [350, 450, 1];
+
+        // Changes Color
+        if (this.timer > 200) {
+            this.hexColor = [Math.floor(Math.random() * 250) + 5, Math.floor(Math.random() * 250) + 5, Math.floor(Math.random() * 250) + 5, 255];
+            this.timer = 0;
+        }
+
+        this.rotate(hex, this.hexColor, 425, 450, this.s2theta / 20);
+
     }
     
     // vertex_list:  array of object [Matrix(3, 1), Matrix(3, 1), ..., Matrix(3, 1)]
