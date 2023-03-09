@@ -13,6 +13,29 @@ class Renderer {
         this.start_time = null;
         this.prev_time = null;
 
+        this.s0x = 3;
+        this.s0y = 3;
+        this.square = [
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1)
+        ]
+        this.square[0].values = [200, 200, 1];
+        this.square[1].values = [250, 200, 1];
+        this.square[2].values = [250, 250, 1];
+        this.square[3].values = [200, 250, 1];
+
+        this.circle = [new Matrix(3, 1)];
+        this.circle[0].values = [200, 300, 1];
+        for (let i = 1; i < 20; i++) {
+            this.circle[i] = new Matrix(3, 1);
+            let x = parseInt(200 + 50 * Math.cos((i * 18) * (Math.PI / 180)));
+            //let y = parseInt(200 + 50 * Math.sin((i * 6) * (Math.PI / 180)));
+            let y = parseInt(300 + 50 * Math.sin((i * 18) * (Math.PI / 180)));
+            this.circle[i].values = [x, y, 1];
+        }
+
         this.s1theta = 0;   // Theta for First Spinning Polygon
         this.s2theta = 0;   // Theta for Second Spinning Polygon
         this.s3theta = 0;   // Theta for Third Spinning Polygon
@@ -71,10 +94,18 @@ class Renderer {
     updateTransforms(time, delta_time) {
         // TODO: update any transformations needed for animation
 
+        //MAYBE DON'T UPDATE THE SAME POLYGON THIS MIGHT BE IT GENTS LETS FUCKIN GO
+        // Updates for Slide 0
+        if (delta_time != 0) {
+            //this.s0x = delta_time / 4;
+           //this.s0y = delta_time / delta_time;
+        }
+       
+
         // Updates for slide 1
         this.s1theta = time / 4;
         this.s2theta = -time;
-        this.s3theta = 2 * time;
+        this.s3theta = time / 20;
     }
     
     //
@@ -101,23 +132,80 @@ class Renderer {
     drawSlide0() {
         // TODO: draw bouncing ball (circle that changes direction whenever it hits an edge)
         
-        
-        // Following line is example of drawing a single polygon
-        // (this should be removed/edited after you implement the slide)
-        let diamond = [
-            Vector3(400, 150, 1),
-            Vector3(500, 300, 1),
-            Vector3(400, 450, 1),
-            Vector3(300, 300, 1)
-        ];
         let teal = [0, 128, 128, 255];
-        this.drawConvexPolygon(diamond, teal);
+/*
+        // 
+        //  Corcle
+        //  dont look at the verts please
+        let circle = [new Matrix(3, 1)];
+        circle[0].values = [200, 300, 1];
+        for (let i = 1; i < 20; i++) {
+            circle[i] = new Matrix(3, 1);
+            let x = parseInt(200 + 50 * Math.cos((i * 18) * (Math.PI / 180)));
+            //let y = parseInt(200 + 50 * Math.sin((i * 6) * (Math.PI / 180)));
+            let y = parseInt(300 + 50 * Math.sin((i * 18) * (Math.PI / 180)));
+            circle[i].values = [x, y, 1];
+        }*/
+
+        let trans = new Matrix(3, 3);
+        trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
+        //console.log(trans);
+
+        for (let i = 0; i < this.circle.length; i++) {
+            for (let x = 0; x < this.circle.length; x++) {
+                if (Matrix.multiply([trans, this.circle[i]]).values[0] < 0 || Matrix.multiply([trans, this.circle[i]]).values[0] > 800) {
+                    this.s0x = -this.s0x;
+                    break;  // this might be problematic, try just testing center?
+                    
+                }
+                console.log(this.s0x);
+            }
+            this.circle[i] = Matrix.multiply([trans, this.circle[i]]);
+        }
+        for (let i = 0; i < this.circle.length; i++) {
+                if (Matrix.multiply([trans, this.circle[i]]).values[1] < 0 || Matrix.multiply([trans, this.circle[i]]).values[1] > 600) {
+                    this.s0y = -this.s0y;
+                    break;
+                }
+        }
+        trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
+        /*for (let i = 0; i < this.circle.length; i++) {
+            this.cicle[i] = Matrix.multiply([trans, this.circle[i]]);
+        }*/
+        
+
+        for (let i = 1; i < this.circle.length - 1; i++) {
+            this.drawConvexPolygon([this.circle[0], this.circle[i], this.circle[i+1]], teal);
+        }
+        this.drawConvexPolygon([this.circle[0], this.circle[1], this.circle[this.circle.length - 1]], teal);
+
+        // KEEP BECAUSE THIS KIND OF WORKS
+/*
+        //this.drawConvexPolygon(this.square, teal);
+
+        let trans = new Matrix(3, 3);
+        trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
+       
+
+        for (let i = 0; i < this.square.length; i++) {
+            for (let x = 0; x < this.square.length; x++) {
+                if (Matrix.multiply([trans, this.square[i]]).values[0] < 0 || Matrix.multiply([trans, this.square[i]]).values[0] > 800) {
+                    this.s0x = -this.s0x;
+                }
+                if (Matrix.multiply([trans, this.square[i]]).values[1] < 0 || Matrix.multiply([trans, this.square[i]]).values[1] > 600) {
+                    this.s0y = -this.s0y;
+                }
+                console.log(this.s0x);
+                trans.values = mat3x3Translate(mat3x3Identity, this.s0x, this.s0y);
+            }
+            this.square[i] = Matrix.multiply([trans, this.square[i]]);
+        }
+        this.drawConvexPolygon(this.square, teal);*/
+
     }
 
     //
     drawSlide1() {
-        // TODO: draw at least 3 polygons that spin about their own centers
-        //   - have each polygon spin at a different speed / direction
         
         let black = [0, 0, 0, 255];
 
@@ -135,21 +223,7 @@ class Renderer {
         square[2].values = [250, 250, 1];
         square[3].values = [200, 250, 1];
 
-        // Change matrix for First Poly
-        let trans = new Matrix(3, 3);
-        trans.values = mat3x3Translate(mat3x3Identity, 225, 225);
-        let trans2 = new Matrix(3, 3);
-        trans2.values = mat3x3Translate(mat3x3Identity, -225, -225);
-        let rotate = new Matrix(3, 3);
-        rotate.values = mat3x3Rotate(mat3x3Identity, this.s1theta);
-        let schange = new Matrix(3, 3);
-        schange = Matrix.multiply([trans, rotate, trans2]);
-
-        //  Change Poly 1 Verts
-        for (let i = 0; i < square.length; i++) {
-            square[i] = Matrix.multiply([schange, square[i]]);
-        } 
-        this.drawConvexPolygon(square, black);
+        this.rotate(square, black, 225, 225, this.s1theta);
 
         //
         // Second Poly
@@ -168,18 +242,8 @@ class Renderer {
         hex[3].values = [450, 500, 1];
         hex[4].values = [400, 500, 1];
         hex[5].values = [350, 450, 1];
-        
-        // Change mat for poly 2
-        trans.values = mat3x3Translate(mat3x3Identity, 425, 450);
-        trans2.values = mat3x3Translate(mat3x3Identity, -425, -450);
-        rotate.values = mat3x3Rotate(mat3x3Identity, this.s2theta);
-        schange = Matrix.multiply([trans, rotate, trans2]);
 
-        // Change poly 2 verts
-        for (let i = 0; i < hex.length; i++) {
-            hex[i] = Matrix.multiply([schange, hex[i]]);
-        } 
-        this.drawConvexPolygon(hex, black);
+        this.rotate(hex, black, 425, 450, this.s2theta);
 
         //
         // Third Poly
@@ -203,18 +267,31 @@ class Renderer {
         octo[6].values = [375, 150, 1];
         octo[7].values = [375, 125, 1];
 
-        // Change mat for poly 2
-        trans.values = mat3x3Translate(mat3x3Identity, 412.5, 137.5);
-        trans2.values = mat3x3Translate(mat3x3Identity, -412.5, -137.5);
-        rotate.values = mat3x3Rotate(mat3x3Identity, this.s3theta);
+        this.rotate(octo, black, 412.5, 137.5, this.s3theta);
+
+    }
+
+    // Rotate Function calculates the matrix needed to rotate the shape and rotates the shape
+    // tx - X Value of Center of Shape
+    // ty - Y Value of Center of Shape
+    // theta - Degree for the shape to be rotated by
+    rotate(shape, color, tx, ty, theta) {
+
+        // Creates The Change Matrix for the Polygon
+        let trans = new Matrix(3, 3);
+        let trans2 = new Matrix(3, 3);
+        let rotate = new Matrix(3, 3);
+        let schange = new Matrix(3, 3);
+        trans.values = mat3x3Translate(mat3x3Identity, tx, ty);
+        trans2.values = mat3x3Translate(mat3x3Identity, -tx, -ty);
+        rotate.values = mat3x3Rotate(mat3x3Identity, theta);
         schange = Matrix.multiply([trans, rotate, trans2]);
 
-        // Change poly 2 verts
-        for (let i = 0; i < octo.length; i++) {
-            octo[i] = Matrix.multiply([schange, octo[i]]);
+        // Updates the Polygons Vertices
+        for (let i = 0; i < shape.length; i++) {
+            shape[i] = Matrix.multiply([schange, shape[i]]);
         } 
-        this.drawConvexPolygon(octo, black);
-
+        this.drawConvexPolygon(shape, color);
 
     }
 
