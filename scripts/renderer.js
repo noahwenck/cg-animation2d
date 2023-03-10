@@ -75,6 +75,11 @@ class Renderer {
         this.square_1_011 = true;
         this.square_1_010 = true;
 
+        this.update_slide2_x = 1;
+        this.update_slide2_y = 1;
+        this.update_slide2_max = 0;
+
+
         // Slide 3
         this.black = [0, 0, 0, 255];
 
@@ -115,6 +120,33 @@ class Renderer {
 
         this.timer = 0;
         this.hexColor = [0, 0, 0, 255];
+
+
+        this.slide_3_polygon = [
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1),
+            new Matrix(3, 1)
+        ];
+
+        this.slide_3_polygon[0].values = [400, 160, 1];
+        this.slide_3_polygon[2].values = [460, 160, 1];
+        this.slide_3_polygon[1].values = [480, 170, 1];
+        this.slide_3_polygon[4].values = [400, 150, 1];
+        this.slide_3_polygon[3].values = [440, 230, 1];
+        this.slide_3_polygon[5].values = [350, 190, 1];
+
+        this.slide_3_square_00 = true;
+        this.slide_3_square_01 = true;
+        this.slide_3_square_10 = true;
+        this.slide_3_square_11 = true;
+        this.slide_3_square_001 = true;
+        this.slide_3_square_011 = true;
+        this.slide_3_square_010 = true;
+
+
 
     }
 
@@ -183,6 +215,30 @@ class Renderer {
         this.s1theta = time / 4;
         this.s2theta = -time;
         this.s3theta = time / 20;
+
+        // Updates for slide 2
+        if (this.limit_fps) {
+            if (this.update_slide2_max < delta_time) {
+                this.update_slide2_max = delta_time;
+            }
+
+            this.update_slide2_x = delta_time / this.update_slide2_max;
+            this.update_slide2_y = delta_time / this.update_slide2_max;
+            console.log("TIME")
+            console.log(this.update_slide2_y)
+        } else {
+            this.update_slide2_x = 1;
+            this.update_slide2_y = 1;
+        }
+
+//        if (this.update_slide2_x <= 0.01) {
+//            // resets buddy
+//            this.update_slide2_x = 1;
+//        }
+//        if (this.update_slide2_y <= 0.01) {
+//            // resets buddy
+//            this.update_slide2_x = 1;
+//        }
 
         // Updates for Slide 3
         this.timer = this.timer + delta_time;
@@ -524,13 +580,20 @@ class Renderer {
 
                 // This assures we can switch between horizontal and Vertical movement
                 if (move_horizontal) {
-                    temp.values = mat3x3Scale(mat3x3Identity, reduce + (rand_update * random_num), 1);
+                    temp.values = mat3x3Scale(mat3x3Identity, (reduce + (rand_update * random_num)), 1);
                 } else {
-                    temp.values = mat3x3Scale(mat3x3Identity, 1, reduce + (rand_update * random_num));
+                    temp.values = mat3x3Scale(mat3x3Identity, 1, (reduce + (rand_update * random_num)));
                 }
+
+//                let temp_scaler = new Matrix(3, 3);
+//                temp_scaler.values = mat3x3Scale(temp_scaler, this.update_slide2_x, this.update_slide2_y);
+//                temp.values = temp_scaler.mult(temp);
+
+
                 // Instead of calling the WHOLE polygon, we just call a single point
                 for (let x = 0; x < points.length; x++) {
                     points[x] = Matrix.multiply([temp, points[x]]);
+//                    points[x] = Matrix.multiply([points[x], temp]);
                 }
 
                 return [true, points];
@@ -547,10 +610,15 @@ class Renderer {
 
                 // This assures we can switch between horizontal and Vertical movement
                 if (move_horizontal) {
-                    temp.values = mat3x3Scale(mat3x3Identity, increase - (rand_update * random_num), 1);
+                    temp.values = mat3x3Scale(mat3x3Identity, (increase - (rand_update * random_num)), 1);
                 } else {
-                    temp.values = mat3x3Scale(mat3x3Identity, 1, increase - (rand_update * random_num));
+                    temp.values = mat3x3Scale(mat3x3Identity, 1, (increase - (rand_update * random_num)));
                 }
+
+//                let temp_scaler = new Matrix(3, 3);
+//                temp_scaler.values = mat3x3Scale(mat3x3Identity, this.update_slide2_x, this.update_slide2_y);
+//                temp.values = temp_scaler.mult(temp);
+
                 // Instead of calling the WHOLE polygon, we just call a single point
                 for (let x = 0; x < points.length; x++) {
                     points[x] = Matrix.multiply([temp, points[x]]);
@@ -685,6 +753,57 @@ class Renderer {
         }
 
         this.rotate(hex, this.hexColor, 425, 450, this.s2theta / 20);
+
+
+
+        let random_num = Math.floor(Math.random() + 0.5);
+        let temp_points = [this.slide_3_polygon[0], this.slide_3_polygon[1]];
+        let move_up = this.scale_triangle(this.slide_3_square_00, temp_points, 300, 750, random_num, true, 1, 0.005);
+        this.slide_3_square_00 = move_up[0];
+        this.slide_3_polygon[0] = move_up[1][0];
+        this.slide_3_polygon[1] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.slide_3_polygon[2], this.slide_3_polygon[3]];
+        move_up = this.scale_triangle(this.slide_3_square_01, temp_points, 300, 350, random_num, false, 1, 0.005);
+        this.slide_3_square_01 = move_up[0];
+        this.slide_3_polygon[2] = move_up[1][0];
+        this.slide_3_polygon[3] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.slide_3_polygon[3], this.slide_3_polygon[4]];
+        move_up = this.scale_triangle(this.slide_3_square_10, temp_points, 400, 680, random_num, true, 1, 0.005);
+        this.slide_3_square_10 = move_up[0];
+        this.slide_3_polygon[3] = move_up[1][0];
+        this.slide_3_polygon[4] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.slide_3_polygon[0], this.slide_3_polygon[5]];
+        move_up = this.scale_triangle(this.slide_3_square_11, temp_points, 75, 400, random_num, false, 1, 0.005);
+        this.slide_3_square_11 = move_up[0];
+        this.slide_3_polygon[0] = move_up[1][0];
+        this.slide_3_polygon[5] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.slide_3_polygon[1], this.slide_3_polygon[4]];
+        move_up = this.scale_triangle(this.slide_3_square_011, temp_points, 75, 400, random_num, false, 1, 0.005);
+        this.slide_3_square_011 = move_up[0];
+        this.slide_3_polygon[1] = move_up[1][0];
+        this.slide_3_polygon[4] = move_up[1][1];
+
+        random_num = Math.floor(Math.random() + 0.5);
+        temp_points = [this.slide_3_polygon[3], this.slide_3_polygon[0]];
+        move_up = this.scale_triangle(this.slide_3_square_011, temp_points, 75, 400, random_num, false, 1, 0.005);
+        this.slide_3_square_011 = move_up[0];
+        this.slide_3_polygon[3] = move_up[1][0];
+        this.slide_3_polygon[0] = move_up[1][1];
+
+
+
+        this.drawConvexPolygon(this.slide_3_polygon, color);
+
+
+
 
     }
     
